@@ -25,6 +25,8 @@
 		3A40E7AE2955AB6300C874B9 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A40E7AD2955AB6300C874B9 /* UserProfile.swift */; };
 		3A40E7B12955ABF900C874B9 /* CommonStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A40E7B02955ABF900C874B9 /* CommonStorage.swift */; };
 		3A40E7B32955B15D00C874B9 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A40E7B22955B15D00C874B9 /* TabBarViewController.swift */; };
+		3A8E2771296096530035F71B /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8E2770296096530035F71B /* AuthResponse.swift */; };
+		3AD4762F295CA6C200B9A164 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD4762E295CA6C200B9A164 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,8 @@
 		3A40E7AD2955AB6300C874B9 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		3A40E7B02955ABF900C874B9 /* CommonStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStorage.swift; sourceTree = "<group>"; };
 		3A40E7B22955B15D00C874B9 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
+		3A8E2770296096530035F71B /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
+		3AD4762E295CA6C200B9A164 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +108,7 @@
 				3A40E7A92955AB5300C874B9 /* Audio.swift */,
 				3A40E7AB2955AB5A00C874B9 /* Artist.swift */,
 				3A40E7AD2955AB6300C874B9 /* UserProfile.swift */,
+				3A8E2770296096530035F71B /* AuthResponse.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 				3A40E7802955A4C100C874B9 /* Assets.xcassets */,
 				3A40E7852955A4C100C874B9 /* Info.plist */,
 				3A40E7772955A4C000C874B9 /* AppDelegate.swift */,
+				3AD4762E295CA6C200B9A164 /* Extensions.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -272,11 +278,13 @@
 				3A40E7A82955A89C00C874B9 /* APIManager.swift in Sources */,
 				3A40E7942955A73400C874B9 /* SearchViewController.swift in Sources */,
 				3A40E7982955A75B00C874B9 /* AuthViewController.swift in Sources */,
+				3AD4762F295CA6C200B9A164 /* Extensions.swift in Sources */,
 				3A40E79C2955A77500C874B9 /* ProfileViewController.swift in Sources */,
 				3A40E7AC2955AB5A00C874B9 /* Artist.swift in Sources */,
 				3A40E7922955A72B00C874B9 /* HomeViewController.swift in Sources */,
 				3A40E7A02955A79600C874B9 /* SearchResultsViewController.swift in Sources */,
 				3A40E7A62955A88D00C874B9 /* AuthManager.swift in Sources */,
+				3A8E2771296096530035F71B /* AuthResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
