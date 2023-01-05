@@ -27,6 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     public func setUpRootVC(){
         if AuthManager.shared.isSignedIn{
+            AuthManager.shared.refreshIfNeeded { _ in}
             let tabBarVC = TabBarViewController()
             window?.rootViewController = tabBarVC
         }

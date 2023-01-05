@@ -158,7 +158,6 @@ final class AuthManager{
         request.setValue("Basic \(base64EncodedToken)", forHTTPHeaderField: "Authorization")
         
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            print(response)
             self?.refreshingToken = false
             guard let data = data, error == nil else{
                 completion(false)
@@ -166,10 +165,7 @@ final class AuthManager{
             }
             
             do{
-                let j = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-                print(j)
                 let json = try JSONDecoder().decode(AuthResponse.self, from: data)
-                print("SUCCESS: \(json)")
                 self?.cacheToken(json)
                 
                 //Handle Leftover completion handlers

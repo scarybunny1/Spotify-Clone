@@ -50,6 +50,98 @@ final class APIManager{
         }
     }
     
+    public func getNewReleases(completion: @escaping (Result<NewReleasesResponse, Error>) -> Void){
+        let country = "SE"
+        let limit = 20
+        let offset = 0
+        let urlString = Constants.baseUrl + "/browse/new-releases?country=\(country)&limit=\(limit)&offset=\(offset)"
+        createRequest(with: URL(string: urlString), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                
+                do{
+                    let json = try JSONDecoder().decode(NewReleasesResponse.self, from: data)
+                    completion(.success(json))
+                }
+                catch{
+                    print("Failed to deserialize json data")
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getFeaturedPlaylists(completion: @escaping (Result<FeaturedPlaylistsResponse, Error>) -> Void){
+        let limit = 20
+        let offset = 0
+        let urlString = Constants.baseUrl + "/browse/featured-playlists?limit=\(limit)&offset=\(offset)"
+        createRequest(with: URL(string: urlString), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                
+                do{
+                    let json = try JSONDecoder().decode(FeaturedPlaylistsResponse.self, from: data)
+                    completion(.success(json))
+                }
+                catch{
+                    print("Failed to deserialize json data")
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getRecommendations(genreSeed: [String], completion: @escaping (Result<RecommendationsResponse, Error>) -> Void){
+        let genre_seed = genreSeed.joined(separator: ",")
+        let urlString = Constants.baseUrl + "/recommendations?seed_genres=\(genre_seed)&limit=20"
+        
+        createRequest(with: URL(string: urlString), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                
+                do{
+                    let json = try JSONDecoder().decode(RecommendationsResponse.self, from: data)
+                    completion(.success(json))
+                }
+                catch{
+                    print("Failed to deserialize json data: \(error)")
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getRecommendedGenres(completion: @escaping (Result<RecommendedGenreResponse, Error>) -> Void){
+        let urlString = Constants.baseUrl + "/recommendations/available-genre-seeds"
+        
+        createRequest(with: URL(string: urlString), type: .GET) { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                
+                do{
+                    let json = try JSONDecoder().decode(RecommendedGenreResponse.self, from: data)
+                    completion(.success(json))
+                }
+                catch{
+                    print("Failed to deserialize json data")
+                }
+            }
+            task.resume()
+        }
+    }
+    
     //MARK:  Private functions
     
     private func createRequest(with url: URL?, type: HTTPMethod, completion: @escaping (URLRequest) -> Void){

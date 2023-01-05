@@ -15,7 +15,7 @@ struct UserProfile: Codable{
     var external_urls: ExternalUrls
     var followers: Followers
     var id: String
-    var images: [Images]?
+    var images: [APIImage]
     var product: String
 }
 
@@ -33,8 +33,4 @@ struct Followers: Codable{
     var total: Int
 }
 
-struct Images: Codable{
-    var url: String?
-    var height: Int?
-    var width: Int?
-}
+

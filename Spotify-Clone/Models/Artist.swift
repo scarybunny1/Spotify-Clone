@@ -7,3 +7,9 @@
 
 import Foundation
 
+struct Artist: Codable{
+    var id: String
+    var name: String
+    var external_urls: [String: String]
+    var type: String
+}
