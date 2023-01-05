@@ -20,8 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         setUpRootVC()
         
-        print(AuthManager.shared.signInURL?.absoluteString)
-        
         return true
     }
     
