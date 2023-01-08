@@ -14,16 +14,6 @@
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>Copyright 2017. Arash Payan. This library is distributed under the terms of the MIT/X11.</string>
-			<key>License</key>
-			<string>MIT</string>
-			<key>Title</key>
-			<string>Appirater</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>FooterText</key>
 			<string>Copyright (c) 2009-2020 Olivier Poitrey rs@dailymotion.com
  
 Permission is hereby granted, free of charge, to any person obtaining a copy

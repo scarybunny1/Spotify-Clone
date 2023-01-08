@@ -7,6 +7,5 @@ target 'Spotify-Clone' do
 
   # Pods for Spotify-Clone
 pod "SDWebImage"
-pod "Appirater"
 
 end

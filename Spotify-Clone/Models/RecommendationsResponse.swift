@@ -14,9 +14,8 @@ struct RecommendationsResponse: Decodable{
 struct Track: Codable{
     var id: String
     var name: String
-    var popularity: Int
     var disc_number: Int
-    var album: Album
+    var album: Album?
     var artists: [Artist]
     var available_markets: [String]
     var duration_ms: Int

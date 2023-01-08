@@ -9,11 +9,11 @@ import Foundation
 
 struct FeaturedPlaylistsResponse: Decodable{
     var message: String
-    var playlists: [Playlist]
+    var playlists: PlaylistResponse
 }
 
 struct PlaylistResponse: Decodable{
-    var items: Playlist
+    var items: [Playlist]
 }
 
 struct Playlist: Decodable{

@@ -30,6 +30,8 @@ final class APIManager{
         }
         let error: EE
     }
+    
+    //MARK:  Profile
     public func getCurrentUserProfile(completion: @escaping (Result<UserProfile, Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/me"), type: .GET) { baseRequest in
             let task = URLSession.shared.dataTask(with: baseRequest) { data, _, error in
@@ -50,6 +52,7 @@ final class APIManager{
         }
     }
     
+    //MARK:  New Releases
     public func getNewReleases(completion: @escaping (Result<NewReleasesResponse, Error>) -> Void){
         let country = "SE"
         let limit = 20
@@ -74,6 +77,7 @@ final class APIManager{
         }
     }
     
+    //MARK:  Featured Playlists
     public func getFeaturedPlaylists(completion: @escaping (Result<FeaturedPlaylistsResponse, Error>) -> Void){
         let limit = 20
         let offset = 0
@@ -97,6 +101,7 @@ final class APIManager{
         }
     }
     
+    //MARK:  Recommended Tracks
     public func getRecommendations(genreSeed: [String], completion: @escaping (Result<RecommendationsResponse, Error>) -> Void){
         let genre_seed = genreSeed.joined(separator: ",")
         let urlString = Constants.baseUrl + "/recommendations?seed_genres=\(genre_seed)&limit=20"
@@ -120,6 +125,7 @@ final class APIManager{
         }
     }
     
+    //MARK:  Recommended Genres
     public func getRecommendedGenres(completion: @escaping (Result<RecommendedGenreResponse, Error>) -> Void){
         let urlString = Constants.baseUrl + "/recommendations/available-genre-seeds"
         
@@ -139,6 +145,64 @@ final class APIManager{
                 }
             }
             task.resume()
+        }
+    }
+    
+    //MARK:  Get Album
+    public func getAlbumDetails(for album: Album, completion: @escaping (Result<AlbumDetailsResponse, Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/albums/\(album.id)"), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let json = try JSONDecoder().decode(AlbumDetailsResponse.self, from: data)
+                    completion(.success(json))
+                }
+                catch{
+                    print("Failed to serialize data \(error)")
+                }
+            }.resume()
+        }
+    }
+    
+    //MARK:  Get Playlist
+    public func getPlaylistDetails(for playlist: Playlist, completion: @escaping (Result<PlaylistDetailsResponse, Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/playlists/\(playlist.id)"), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let json = try JSONDecoder().decode(PlaylistDetailsResponse.self, from: data)
+                    completion(.success(json))
+                }
+                catch{
+                    print("Failed to serialize json data: \(error)")
+                }
+            }.resume()
+        }
+    }
+    
+    //MARK:  Get Track
+    public func getTrackDetails(for track: Track, completion: @escaping (Result<RecommendationsResponse, Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/tracks/\(track.id)"), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let json = try JSONDecoder().decode(RecommendationsResponse.self, from: data)
+                    completion(.success(json))
+                    print(json)
+                }
+                catch{
+                    print("Failed to serialize json data: \(error)")
+                }
+            }.resume()
         }
     }
     
