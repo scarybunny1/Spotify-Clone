@@ -11,6 +11,14 @@ import SDWebImage
 class RecommendedTracksCollectionViewCell: UICollectionViewCell {
     static let identifier = "RecommendedTracksCollectionViewCell"
     
+    private var horStackView: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .horizontal
+        sv.spacing = 10
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
+    
     private var trackNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -58,11 +66,12 @@ class RecommendedTracksCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         
         backgroundColor = .secondarySystemBackground
-        addSubview(stackView)
-        addSubview(trackImageView)
+        addSubview(horStackView)
+        horStackView.addArrangedSubview(trackImageView)
+        horStackView.addArrangedSubview(stackView)
+        horStackView.addArrangedSubview(trackDurationLabel)
         stackView.addArrangedSubview(trackNameLabel)
         stackView.addArrangedSubview(artistNameLabel)
-        addSubview(trackDurationLabel)
     }
     
     required init?(coder: NSCoder) {
@@ -71,18 +80,12 @@ class RecommendedTracksCollectionViewCell: UICollectionViewCell {
     
     override func layoutSubviews() {
         NSLayoutConstraint.activate([
-            trackImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
-            trackImageView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            trackImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            horStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            horStackView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            horStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            horStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+    
             trackImageView.widthAnchor.constraint(equalTo: trackImageView.heightAnchor),
-            
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            stackView.leadingAnchor.constraint(equalTo: trackImageView.trailingAnchor, constant: 10),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
-            stackView.trailingAnchor.constraint(equalTo: trackDurationLabel.leadingAnchor, constant: -5),
-            
-            trackDurationLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            trackDurationLabel.centerYAnchor.constraint(equalTo: stackView.centerYAnchor),
         ])
     }
     
@@ -93,7 +96,8 @@ class RecommendedTracksCollectionViewCell: UICollectionViewCell {
         trackDurationLabel.text = nil
     }
     
-    public func configure(with model: RecommendedTracksCellViewModel){
+    public func configure(with model: RecommendedTracksCellViewModel, hideImageView: Bool = false){
+        trackImageView.isHidden = hideImageView
         trackNameLabel.text = model.name
         trackImageView.sd_setImage(with: model.artworkUrl)
         artistNameLabel.text = model.artistName

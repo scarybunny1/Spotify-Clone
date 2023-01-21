@@ -24,14 +24,14 @@ class TrackViewController: UIViewController {
         super.viewDidLoad()
         title = track.name
         
-        APIManager.shared.getTrackDetails(for: track) { result in
-            switch result {
-            case .success(let model):
-                print(model)
-            case .failure(let error):
-                print(error)
-            }
-        }
+//        APIManager.shared.getTrackDetails(for: track) { result in
+//            switch result {
+//            case .success(let model):
+//                print(model)
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
     }
 
 }

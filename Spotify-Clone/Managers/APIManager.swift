@@ -186,17 +186,39 @@ final class APIManager{
         }
     }
     
-    //MARK:  Get Track
-    public func getTrackDetails(for track: Track, completion: @escaping (Result<RecommendationsResponse, Error>) -> Void){
-        createRequest(with: URL(string: Constants.baseUrl + "/tracks/\(track.id)"), type: .GET) { request in
+    //MARK:  Get Categories
+    
+    public func getCategories(completion: @escaping (Result<GetCategoriesResponse, Error>) -> Void){
+        let limit = 50
+        createRequest(with: URL(string: Constants.baseUrl + "/browse/categories?limit=\(limit)"), type: .GET) { request in
             URLSession.shared.dataTask(with: request) { data, response, error in
                 guard let data = data, error == nil else{
                     completion(.failure(APIError.failedToGetData))
                     return
                 }
                 do{
-                    let json = try JSONDecoder().decode(RecommendationsResponse.self, from: data)
+                    let json = try JSONDecoder().decode(GetCategoriesResponse.self, from: data)
                     completion(.success(json))
+                }
+                catch{
+                    print("Failed to serialize json data: \(error)")
+                }
+            }.resume()
+        }
+    }
+    
+    //MARK:  Get Categories Playlist
+    
+    public func getCategoriesPlaylist(category: Category, completion: @escaping (Result<[Playlist], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/browse/categories/\(category.id)/playlists"), type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let json = try JSONDecoder().decode(CategoryPlaylistsResponse.self, from: data)
+                    completion(.success(json.playlists.items))
                     print(json)
                 }
                 catch{

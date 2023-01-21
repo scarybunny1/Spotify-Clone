@@ -8,7 +8,10 @@
 import Foundation
 
 struct FeaturedPlaylistsResponse: Decodable{
-    var message: String
+    var playlists: PlaylistResponse
+}
+
+struct CategoryPlaylistsResponse: Decodable{
     var playlists: PlaylistResponse
 }
 

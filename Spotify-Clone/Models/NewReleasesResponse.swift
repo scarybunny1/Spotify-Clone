@@ -18,6 +18,7 @@ struct AlbumsResponse: Decodable{
 struct Album: Codable{
     var album_type: String
     var artists: [Artist]
+    var external_urls: [String: String]
     var available_markets: [String]
     var id: String
     var images: [APIImage]
