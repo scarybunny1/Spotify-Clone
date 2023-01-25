@@ -22,6 +22,7 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         let sv = UIStackView()
         sv.spacing = 10
         sv.axis = .vertical
+        sv.distribution = .fill
         sv.translatesAutoresizingMaskIntoConstraints = false
         return sv
     }()
@@ -38,6 +39,7 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
         return label
     }()
     

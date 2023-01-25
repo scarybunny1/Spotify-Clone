@@ -10,7 +10,7 @@ import UIKit
 class AlbumViewController: UIViewController {
     
     private var album: Album
-    
+    private var tracks = [Track]()
     private var viewModels = [RecommendedTracksCellViewModel]()
     
     private var collectionView = UICollectionView(
@@ -67,6 +67,7 @@ class AlbumViewController: UIViewController {
             DispatchQueue.main.async{
                 switch result {
                 case .success(let model):
+                    self?.tracks = model.tracks.items
                     self?.viewModels = model.tracks.items.compactMap({
                         return RecommendedTracksCellViewModel(name: $0.name, disc_number: $0.disc_number, albumName: $0.album?.name ?? "", artistName: $0.artists.first?.name ?? "", duration_ms: $0.duration_ms)
                     })
@@ -121,6 +122,7 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
             ofKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: AlbumHeaderCollectionReusableView.identifier, for: indexPath
         ) as! AlbumHeaderCollectionReusableView
+        headerView.delegate = self
         let viewModel = AlbumHeaderViewModel(
             name: album.name,
             releaseDate: "Release date: " + String.formattedDate(from: album.release_date),
@@ -129,5 +131,16 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
         )
         headerView.configure(with: viewModel)
         return headerView
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let track = tracks[indexPath.row]
+        PlaybackPresenter.startPlayback(self, track: track)
+    }
+}
+
+extension AlbumViewController: AlbumHeaderCollectionReusableViewProtocol{
+    func albumHeaderCollectionReusableViewPlayAllTracks(_ header: AlbumHeaderCollectionReusableView) {
+        PlaybackPresenter.startPlayback(self, tracks: tracks)
     }
 }

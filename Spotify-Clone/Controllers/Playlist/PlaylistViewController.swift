@@ -10,6 +10,7 @@ import UIKit
 class PlaylistViewController: UIViewController {
 
     private var playlist: Playlist
+    private var tracks = [Track]()
     private var viewModels = [RecommendedTracksCellViewModel]()
     
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout(sectionProvider: { _, _ in
@@ -67,9 +68,10 @@ class PlaylistViewController: UIViewController {
         
         setUpCollectionView()
         
-        APIManager.shared.getPlaylistDetails(for: playlist) {  [weak self] result in
+        APIManager.shared.getPlaylistDetails(for: playlist) {[weak self] result in
             switch result {
             case .success(let model):
+                self?.tracks = model.tracks.items.compactMap({ $0.track })
                 let recommendedTracksViewModel = model.tracks.items.compactMap {
                     return RecommendedTracksCellViewModel(name: $0.track.name, disc_number: $0.track.disc_number, albumName: $0.track.album?.name ?? "--", artistName: $0.track.artists.first?.name ?? "--", duration_ms: $0.track.duration_ms, artworkUrl: URL(string: $0.track.album?.images.first?.url ?? ""))
                 }
@@ -129,7 +131,7 @@ extension PlaylistViewController: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        //Play song
+        PlaybackPresenter.startPlayback(self, track: tracks[indexPath.row])
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -143,6 +145,6 @@ extension PlaylistViewController: UICollectionViewDelegate, UICollectionViewData
 
 extension PlaylistViewController: PlaylistHeaderCollectionReusableViewProtocol{
     func playlistHeaderCollectionReusableViewPlayAllTracks(_ header: PlaylistHeaderCollectionReusableView) {
-        //Start playlist play all
+        PlaybackPresenter.startPlayback(self, tracks: tracks)
     }
 }

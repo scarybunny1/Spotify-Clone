@@ -228,6 +228,33 @@ final class APIManager{
         }
     }
     
+    //MARK:  Search
+    
+    public func search(query: String, completion: @escaping (Result<[[SearchResults]], Error>) -> Void){
+        let urlString = Constants.baseUrl + "/search?" + "q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" + "&type=album,artist,playlist,track"
+        let url = URL(string: urlString)
+        createRequest(with: url, type: .GET) {request in
+            URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let json = try JSONDecoder().decode(SearchResponse.self, from: data)
+                    var searchResults: [[SearchResults]] = [[],[],[],[]]
+                    searchResults[0].append(contentsOf: json.tracks.items.compactMap({SearchResults.tracks(model: $0)}))
+                    searchResults[1].append(contentsOf: json.albums.items.compactMap({SearchResults.albums(model: $0)}))
+                    searchResults[2].append(contentsOf: json.artists.items.compactMap({SearchResults.artists(model: $0)}))
+                    searchResults[3].append(contentsOf: json.playlists.items.compactMap({SearchResults.playlists(model: $0)}))
+                    completion(.success(searchResults))
+                }
+                catch{
+                    print("Failed to serialize json data: \(error)")
+                }
+            }).resume()
+        }
+    }
+    
     //MARK:  Private functions
     
     private func createRequest(with url: URL?, type: HTTPMethod, completion: @escaping (URLRequest) -> Void){

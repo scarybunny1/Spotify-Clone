@@ -278,10 +278,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
             navigationController?.pushViewController(playlistVC, animated: true)
         case .recommendedTracks(_):
             let track = tracks[indexPath.row]
-            let trackVC = TrackViewController(track: track)
-            trackVC.title = track.name
-            trackVC.navigationItem.largeTitleDisplayMode = .never
-            navigationController?.pushViewController(trackVC, animated: true)
+            PlaybackPresenter.startPlayback(self, track: track)
         }
     }
     

@@ -20,6 +20,7 @@ class AlbumHeaderCollectionReusableView: UICollectionReusableView {
         let sv = UIStackView()
         sv.spacing = 10
         sv.axis = .vertical
+        sv.distribution = .fill
         sv.translatesAutoresizingMaskIntoConstraints = false
         return sv
     }()
@@ -35,6 +36,7 @@ class AlbumHeaderCollectionReusableView: UICollectionReusableView {
     private var nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .semibold)
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -51,6 +53,7 @@ class AlbumHeaderCollectionReusableView: UICollectionReusableView {
     private var ownerLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .light)
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
