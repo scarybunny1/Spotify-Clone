@@ -16,11 +16,19 @@ protocol PlayerControlsViewDelegate: AnyObject{
     func playerControlsViewDelegateDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView)
     func playerControlsViewDelegateDidTapForwardButton(_ playerControlsView: PlayerControlsView)
     func playerControlsViewDelegateDidTapBackwardsButton(_ playerControlsView: PlayerControlsView)
+    func playerControlsViewDelegate(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float)
+}
+
+protocol PlayerViewControllerDatasource: AnyObject{
+    var songName: String? { get }
+    var subtitle: String? { get }
+    var imageUrl: URL? { get }
 }
 
 class PlayerControlsView: UIView {
     
     weak var delegate: PlayerControlsViewDelegate?
+    private var isPlaying = true
     
     private let volumeSlider: UISlider = {
         let slider = UISlider()
@@ -115,6 +123,7 @@ class PlayerControlsView: UIView {
         addSubview(nameLabel)
         addSubview(subtitleLabel)
         addSubview(volumeSlider)
+        volumeSlider.addTarget(self, action: #selector(didSlideSlider), for: .valueChanged)
         playbackStackView.addArrangedSubview(prevButton)
         playbackStackView.addArrangedSubview(playPauseButton)
         playbackStackView.addArrangedSubview(nextButton)
@@ -158,6 +167,24 @@ class PlayerControlsView: UIView {
     
     @objc private func didTapPlayPauseButton(){
         delegate?.playerControlsViewDelegateDidTapPlayPauseButton(self)
+        isPlaying = !isPlaying
+        
+        let playIcon = UIImage(
+            systemName: "play.fill",
+            withConfiguration: UIImage.SymbolConfiguration(
+                pointSize: 34,
+                weight: .regular
+            )
+        )
+        let pauseIcon = UIImage(
+            systemName: "pause.fill",
+            withConfiguration: UIImage.SymbolConfiguration(
+                pointSize: 34,
+                weight: .regular
+            )
+        )
+        
+        playPauseButton.setImage(isPlaying ? pauseIcon : playIcon, for: .normal)
     }
     
     @objc private func didTapForwardButton(){
@@ -166,5 +193,10 @@ class PlayerControlsView: UIView {
     
     @objc private func didTapBackwardsButton(){
         delegate?.playerControlsViewDelegateDidTapPlayPauseButton(self)
+    }
+    
+    @objc func didSlideSlider(_ slider: UISlider){
+        let value = slider.value
+        delegate?.playerControlsViewDelegate(self, didSlideSlider: value)
     }
 }

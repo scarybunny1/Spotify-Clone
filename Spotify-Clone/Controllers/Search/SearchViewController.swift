@@ -137,7 +137,7 @@ extension SearchViewController: SearchResultsViewControllerDelegate{
     func didTapResult(_ result: SearchResults) {
         switch result{
         case .tracks(let track):
-            PlaybackPresenter.startPlayback(self, track: track)
+            PlaybackPresenter.shared.startPlayback(self, track: track)
         case .albums(let album):
             let vc = AlbumViewController(album: album)
             vc.navigationItem.largeTitleDisplayMode = .never

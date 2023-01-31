@@ -134,13 +134,19 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let track = tracks[indexPath.row]
-        PlaybackPresenter.startPlayback(self, track: track)
+        var track = tracks[indexPath.row]
+        track.album = self.album
+        PlaybackPresenter.shared.startPlayback(self, track: track)
     }
 }
 
 extension AlbumViewController: AlbumHeaderCollectionReusableViewProtocol{
     func albumHeaderCollectionReusableViewPlayAllTracks(_ header: AlbumHeaderCollectionReusableView) {
-        PlaybackPresenter.startPlayback(self, tracks: tracks)
+        let tracksWithAlbum = tracks.compactMap { [weak self] in
+            var track = $0
+            track.album = self?.album
+            return track
+        }
+        PlaybackPresenter.shared.startPlayback(self, tracks: tracksWithAlbum)
     }
 }

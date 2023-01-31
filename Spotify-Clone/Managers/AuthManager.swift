@@ -52,7 +52,7 @@ final class AuthManager{
     
     private var shouldRefreshToken: Bool{
         if let tokenExpirationDate = tokenExpirationDate{
-            return Date().addingTimeInterval(TimeInterval(300)) >= tokenExpirationDate
+            return Date().addingTimeInterval(TimeInterval(3000)) >= tokenExpirationDate
         }
         return false
     }
@@ -86,7 +86,6 @@ final class AuthManager{
             
             do{
                 let json = try JSONDecoder().decode(AuthResponse.self, from: data)
-                print("SUCCESS: \(json)")
                 self?.cacheToken(json)
                 completion(true)
             }
@@ -189,6 +188,7 @@ final class AuthManager{
             UserDefaults.standard.set(refresh_token, forKey: UserDefaultKeys.REFRESH_TOKEN)
         }
         UserDefaults.standard.set(Date().addingTimeInterval(TimeInterval(result.expires_in)), forKey: UserDefaultKeys.EXPIRATION_DATE)
+        print(result.access_token)
         
     }
 }

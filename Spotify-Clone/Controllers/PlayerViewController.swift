@@ -6,15 +6,22 @@
 //
 
 import UIKit
+import SDWebImage
+
+protocol PlayerViewControllerDelegate: AnyObject{
+    func didTapPlayPause()
+    func didTapForward()
+    func didTapBackward()
+    func didSlideSlider(_ value: Float)
+}
 
 class PlayerViewController: UIViewController {
     
-    var track: Track?
-    var tracks: [Track]?
+    weak var datasource: PlayerViewControllerDatasource?
+    weak var delegate: PlayerViewControllerDelegate?
     
     private var imageView: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = .blue
         iv.contentMode = .scaleAspectFit
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -39,6 +46,7 @@ class PlayerViewController: UIViewController {
         view.addSubview(playerControlsView)
         playerControlsView.delegate = self
         configureBarButtons()
+        configure()
     }
     
     override func viewDidLayoutSubviews() {
@@ -64,6 +72,11 @@ class PlayerViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapAction))
     }
     
+    private func configure(){
+        imageView.sd_setImage(with: datasource?.imageUrl)
+        playerControlsView.configureView(with: PlayerControlsViewViewModel(title: datasource?.songName ?? "", subtitle: datasource?.subtitle ?? ""))
+    }
+    
     @objc private func didTapClose(){
         self.dismiss(animated: true)
     }
@@ -72,16 +85,7 @@ class PlayerViewController: UIViewController {
         let actionSheet = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
         
         let addToPlaylistAction = UIAlertAction(title: "Add to Playlist", style: .default)
-        let shareAction = UIAlertAction(title: "Share", style: .default) { _ in
-            guard let track = self.tracks?.first, let url = URL(string: track.external_urls["spotify"] ?? "") else{return}
-            
-            let activityVC = UIActivityViewController(
-                activityItems: ["Hey, checkout this new playlist that I found, ", url],
-                applicationActivities: []
-            )
-            activityVC.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
-            self.present(activityVC, animated: true)
-        }
+        let shareAction = UIAlertAction(title: "Share", style: .default)
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
         actionSheet.addAction(addToPlaylistAction)
@@ -90,20 +94,26 @@ class PlayerViewController: UIViewController {
         
         present(actionSheet, animated: true)
     }
+    
+    func refreshUI(){
+        configure()
+    }
 }
 
 extension PlayerViewController: PlayerControlsViewDelegate{
     func playerControlsViewDelegateDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView) {
-        
+        self.delegate?.didTapPlayPause()
     }
     
     func playerControlsViewDelegateDidTapForwardButton(_ playerControlsView: PlayerControlsView) {
-        
+        self.delegate?.didTapForward()
     }
     
     func playerControlsViewDelegateDidTapBackwardsButton(_ playerControlsView: PlayerControlsView) {
-        
+        self.delegate?.didTapBackward()
     }
     
-    
+    func playerControlsViewDelegate(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float) {
+        self.delegate?.didSlideSlider(value)
+    }
 }

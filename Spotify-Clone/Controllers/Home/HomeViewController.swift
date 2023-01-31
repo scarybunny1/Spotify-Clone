@@ -278,7 +278,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
             navigationController?.pushViewController(playlistVC, animated: true)
         case .recommendedTracks(_):
             let track = tracks[indexPath.row]
-            PlaybackPresenter.startPlayback(self, track: track)
+            PlaybackPresenter.shared.startPlayback(self, track: track)
         }
     }
     

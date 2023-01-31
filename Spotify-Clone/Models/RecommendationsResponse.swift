@@ -20,4 +20,5 @@ struct Track: Codable{
     var available_markets: [String]
     var duration_ms: Int
     var external_urls: [String: String]
+    var preview_url: String?
 }
