@@ -33,14 +33,16 @@ class ProfileViewController: UIViewController {
 
     private func fetchProfile(){
         APIManager.shared.getCurrentUserProfile {[weak self] result in
-            switch result{
-            case .success(let user):
-                DispatchQueue.main.async {
-                    self?.updateUI(with: user)
-                }
-            case .failure(_):
-                DispatchQueue.main.async {
-                    self?.failedToGetProfile()
+            DispatchQueue.main.async {
+                switch result{
+                case .success(let user):
+                    DispatchQueue.main.async {
+                        self?.updateUI(with: user)
+                    }
+                case .failure(_):
+                    DispatchQueue.main.async {
+                        self?.failedToGetProfile()
+                    }
                 }
             }
         }

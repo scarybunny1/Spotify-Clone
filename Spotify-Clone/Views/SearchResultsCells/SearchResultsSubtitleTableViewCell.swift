@@ -54,7 +54,6 @@ class SearchResultsSubtitleTableViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.distribution = .fill
@@ -92,6 +91,6 @@ class SearchResultsSubtitleTableViewCell: UITableViewCell {
     func configure(with model: SearchResultsSubtitleTableViewCellViewModel){
         self.titleLabel.text = model.title
         self.subTitleLabel.text = model.subTitle
-        self.iconImageView.sd_setImage(with: model.imageUrl)
+        self.iconImageView.sd_setImage(with: model.imageUrl, placeholderImage: UIImage(systemName: "music.note.list"))
     }
 }

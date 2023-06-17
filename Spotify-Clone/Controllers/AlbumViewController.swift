@@ -63,6 +63,33 @@ class AlbumViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = album.name
+        fetchData()
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapActionButton))
+        setUpCollectionView()
+    }
+    
+    @objc private func didTapActionButton(){
+        let alertVC = UIAlertController(title: album.name, message: "What fo you want to do?", preferredStyle: .actionSheet)
+        alertVC.addAction(UIAlertAction(title: "Save Album", style: .default, handler: { [weak self] _ in
+            self?.saveAlbum()
+        }))
+        alertVC.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alertVC, animated: true)
+    }
+    
+    private func saveAlbum(){
+        APIManager.shared.saveAlbum(album) { success in
+            if success{
+                NotificationCenter.default.post(Notification(name: Notification.Name.albumSavedNotification, object: nil))
+            }
+            else{
+                print("Failed to save the album")
+            }
+        }
+    }
+    
+    private func fetchData(){
         APIManager.shared.getAlbumDetails(for: album) { [weak self] result in
             DispatchQueue.main.async{
                 switch result {
@@ -77,10 +104,6 @@ class AlbumViewController: UIViewController {
                 }
             }
         }
-        
-        setUpCollectionView()
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(didTapShareButton))
     }
     
     private func setUpCollectionView(){
@@ -90,15 +113,6 @@ class AlbumViewController: UIViewController {
             
         collectionView.register(AlbumHeaderCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: AlbumHeaderCollectionReusableView.identifier)
         collectionView.register(RecommendedTracksCollectionViewCell.self, forCellWithReuseIdentifier: RecommendedTracksCollectionViewCell.identifier)
-    }
-    
-    @objc private func didTapShareButton(){
-        guard let url = URL(string: album.external_urls["spotify"] ?? "") else{
-            return
-        }
-        let activityVC = UIActivityViewController(activityItems: ["Hey, check out this cool new album I found, ", url], applicationActivities: [])
-        activityVC.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
-        present(activityVC, animated: true)
     }
     
     override func viewDidLayoutSubviews() {
@@ -134,6 +148,7 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: false)
         var track = tracks[indexPath.row]
         track.album = self.album
         PlaybackPresenter.shared.startPlayback(self, track: track)

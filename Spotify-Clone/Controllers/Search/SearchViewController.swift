@@ -111,6 +111,25 @@ extension SearchViewController: UISearchBarDelegate{
             }
         }
     }
+    
+    private func getRandomColor() -> UIColor{
+        if #available(iOS 15.0, *) {
+            let colors: [UIColor] = [
+                .systemGreen,
+                .systemPink,
+                .systemYellow,
+                .systemTeal,
+                .systemCyan,
+                .systemOrange,
+                .systemIndigo,
+                .systemPurple
+            ]
+            return colors[Int.random(in: 0..<colors.count)]
+        } else {
+            // Fallback on earlier versions
+            return .systemPink
+        }
+    }
 }
 
 extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSource{
@@ -121,11 +140,12 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCollectionViewCell.identifier, for: indexPath) as! CategoryCollectionViewCell
         let category = categories[indexPath.row]
-        cell.configure(with: CategoryCollectionViewCellViewModel(title: category.name, artworkUrl: URL(string: category.icons.first?.url ?? "")))
+        cell.configure(with: CategoryCollectionViewCellViewModel(title: category.name, artworkUrl: URL(string: category.icons.first?.url ?? "")), bgColor: getRandomColor())
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: false)
         let category = categories[indexPath.row]
         let vc = CategoryViewController(category: category)
         vc.title = category.name

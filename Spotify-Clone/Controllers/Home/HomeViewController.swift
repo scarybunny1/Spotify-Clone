@@ -48,7 +48,7 @@ class HomeViewController: UIViewController {
         }
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         
-        
+        addLongPressGesture()
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             image: UIImage(
                 systemName: "gear"
@@ -75,12 +75,13 @@ class HomeViewController: UIViewController {
             defer{
                 group.leave()
             }
-            
-            switch result{
-            case .success(let model):
-                newReleases = model
-            case.failure(let error):
-                print(error)
+            DispatchQueue.main.async{
+                switch result{
+                case .success(let model):
+                    newReleases = model
+                case.failure(let error):
+                    print(error)
+                }
             }
         }
         
@@ -89,47 +90,51 @@ class HomeViewController: UIViewController {
             defer{
                 group.leave()
             }
-            
-            switch result {
-            case .success(let model):
-                featuredPlaylists = model
-            case .failure(let error):
-                print(error)
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let model):
+                    featuredPlaylists = model
+                case .failure(let error):
+                    print(error)
+                }
             }
         }
         
         APIManager.shared.getRecommendedGenres { result in
-            switch result {
-            case .success(let model):
-                let genres = model.genres
-                var genreSeedList: [String] = []
-                for _ in 1...5{
-                    genreSeedList.append(genres[Int.random(in: 0..<genres.count)])
-                }
-                APIManager.shared.getRecommendations(genreSeed: genreSeedList) { result in
-                    
-                    defer{
-                        group.leave()
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let model):
+                    let genres = model.genres
+                    var genreSeedList: [String] = []
+                    for _ in 1...5{
+                        genreSeedList.append(genres[Int.random(in: 0..<genres.count)])
                     }
-                    
-                    switch result {
-                    case .success(let model):
-                        recommendations = model
-                    case .failure(let error):
-                        print(error)
+                    APIManager.shared.getRecommendations(genreSeed: genreSeedList) { result in
+                        DispatchQueue.main.async {
+                            defer{
+                                group.leave()
+                            }
+                            
+                            switch result {
+                            case .success(let model):
+                                recommendations = model
+                            case .failure(let error):
+                                print(error)
+                            }
+                        }
                     }
+                    break
+                case .failure(let error):
+                    print(error)
                 }
-                break
-            case .failure(let error):
-                print(error)
             }
         }
         
         group.notify(queue: .main) {[weak self] in
             guard let self = self,
-                    let albums = newReleases?.albums.items,
-                    let playlists = featuredPlaylists?.playlists.items,
-                    let tracks = recommendations?.tracks
+                  let albums = newReleases?.albums.items,
+                  let playlists = featuredPlaylists?.playlists.items,
+                  let tracks = recommendations?.tracks
             else{
                 return
             }
@@ -211,6 +216,37 @@ class HomeViewController: UIViewController {
         vc.title = "Settings"
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func addLongPressGesture(){
+        collectionView.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:))))
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer){
+        guard gesture.state == .began else{
+            return
+        }
+        
+        let point = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: point), indexPath.section == 2 else{
+            return
+        }
+        let track = tracks[indexPath.row]
+        
+        let actionSheet = UIAlertController(title: track.name, message: "Would you like to add this to a playlist", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Add to Playlist", style: .default, handler: { [weak self] _ in
+            DispatchQueue.main.async {
+                let vc = LibraryPlaylistViewController()
+                vc.handleDidSelect = {playlist in
+                    APIManager.shared.addTrackToPlaylist(track: track, playlist: playlist) { _ in}
+                }
+                let nc = UINavigationController(rootViewController: vc)
+                vc.title = "Select Playlist"
+                self?.present(nc, animated: true)
+            }
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(actionSheet, animated: true)
     }
 }
 

@@ -30,7 +30,7 @@ final class AuthManager{
     private var refreshingToken = false
     
     public var signInURL: URL? {
-        let urlString = "\(Constants.baseURL)/authorize?response_type=code&client_id=\(Constants.clientID)&scope=\(Constants.scope)&redirect_uri=\(Constants.redirectURI)"
+        let urlString = "\(Constants.baseURL)/authorize?response_type=code&client_id=\(Constants.clientID)&scope=\(Constants.scope)&redirect_uri=\(Constants.redirectURI)&show_dialog=true"
         return URL(string: urlString)
     }
     
@@ -190,5 +190,13 @@ final class AuthManager{
         UserDefaults.standard.set(Date().addingTimeInterval(TimeInterval(result.expires_in)), forKey: UserDefaultKeys.EXPIRATION_DATE)
         print(result.access_token)
         
+    }
+    
+    public func signOut(completion: (Bool) -> Void){
+        UserDefaults.standard.set(nil, forKey: UserDefaultKeys.ACCESS_TOKEN)
+        UserDefaults.standard.set(nil, forKey: UserDefaultKeys.REFRESH_TOKEN)
+        UserDefaults.standard.set(nil, forKey: UserDefaultKeys.EXPIRATION_DATE)
+        
+        completion(true)
     }
 }

@@ -82,7 +82,7 @@ class PlayerViewController: UIViewController {
     }
     
     @objc private func didTapAction(){
-        let actionSheet = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(title: datasource?.songName, message: "What do you want to do?", preferredStyle: .actionSheet)
         
         let addToPlaylistAction = UIAlertAction(title: "Add to Playlist", style: .default)
         let shareAction = UIAlertAction(title: "Share", style: .default)

@@ -65,7 +65,25 @@ extension SettingsViewController{
     }
     
     private func signoutTapped(){
-        
+        let alertVC = UIAlertController(title: "Sign Out", message: "Are you sure you want to sign out?", preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+            AuthManager.shared.signOut { [weak self] success in
+                if success{
+                    DispatchQueue.main.async {
+                        let welcomeVC = WelcomeViewController()
+                        let welcomeNC = UINavigationController(rootViewController: welcomeVC)
+                        welcomeNC.navigationBar.prefersLargeTitles = true
+                        welcomeNC.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
+                        welcomeNC.modalPresentationStyle = .fullScreen
+                        self?.present(welcomeNC, animated: true, completion: {
+                            self?.navigationController?.popToRootViewController(animated: true)
+                        })
+                    }
+                }
+            }
+        }))
+        alertVC.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alertVC, animated: true)
     }
 }
 

@@ -16,6 +16,8 @@ final class APIManager{
     enum HTTPMethod: String{
         case GET = "GET"
         case POST = "POST"
+        case DELETE = "DELETE"
+        case PUT = "PUT"
     }
     
     enum APIError: Error{
@@ -167,6 +169,49 @@ final class APIManager{
         }
     }
     
+    public func getCurrentUserAlbums(completion: @escaping (Result<[Album], Error>) -> Void) {
+        guard let url = URL(string: Constants.baseUrl + "/me/albums") else{
+            return
+        }
+        createRequest(with: url, type: .GET) { request in
+            let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                
+                do{
+                    let json = try JSONDecoder().decode(LibraryAlbumResponse.self, from: data)
+                    completion(.success(json.items.compactMap({ savedAlbum in
+                        return savedAlbum.album
+                    })))
+                }
+                catch{
+                    print("Failed to serialize json data: \(error)")
+                }
+            }
+            
+            dataTask.resume()
+        }
+    }
+    
+    public func saveAlbum(_ album: Album, completion: @escaping (Bool) -> Void){
+        createRequest(with: URL(string: Constants.baseUrl + "/me/albums"), type: .PUT) { baseRequest in
+            var request = baseRequest
+            let json = ["ids": [album.id]]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: json)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let code = (response as? HTTPURLResponse)?.statusCode, error == nil else{
+                    completion(false)
+                    return
+                }
+                completion(code == 200)
+            }
+            dataTask.resume()
+        }
+    }
+    
     //MARK:  Get Playlist
     public func getPlaylistDetails(for playlist: Playlist, completion: @escaping (Result<PlaylistDetailsResponse, Error>) -> Void){
         createRequest(with: URL(string: Constants.baseUrl + "/playlists/\(playlist.id)"), type: .GET) { request in
@@ -183,6 +228,134 @@ final class APIManager{
                     print("Failed to serialize json data: \(error)")
                 }
             }.resume()
+        }
+    }
+    
+    //MARK:  Playlists methods
+    
+    public func getCurrentUserPlaylists(completion: @escaping (Result<[Playlist], Error>) -> Void){
+        guard let url = URL(string: Constants.baseUrl + "/me/playlists") else{
+            return
+        }
+        createRequest(with: url, type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(.failure(APIError.failedToGetData))
+                    return
+                }
+                do{
+                    let json = try JSONDecoder().decode(LibraryPlaylistResponse.self, from: data)
+                    completion(.success(json.items))
+                }
+                catch{
+                    print("Failed to serialize json data")
+                }
+            }.resume()
+        }
+    }
+    
+    public func addTrackToPlaylist(track: Track, playlist: Playlist, completion: @escaping (Bool) -> Void){
+        guard let url = URL(string: Constants.baseUrl + "/playlists/\(playlist.id)/tracks") else{
+            return
+        }
+        createRequest(with: url, type: .POST) { baseRequest in
+            var request = baseRequest
+            let json = ["uris": ["spotify:track:\(track.id)"]]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: json)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(false)
+                    return
+                }
+                do{
+                    let json = try JSONSerialization.jsonObject(with: data)
+                    print(json)
+                    if let response = json as? [String: Any], response["snapshot_id"] as? String != nil{
+                        completion(true)
+                    }
+                    else{
+                        completion(false)
+                    }
+                }
+                catch{
+                    print("Failed to serialize json data")
+                }
+            }.resume()
+        }
+    }
+    
+    public func removeTrackFromPlaylist(track: Track, playlist: Playlist, completion: @escaping (Bool) -> Void){
+        guard let url = URL(string: Constants.baseUrl + "/playlists/\(playlist.id)/tracks") else{
+            return
+        }
+        createRequest(with: url, type: .DELETE) { baseRequest in
+            var request = baseRequest
+            let json: [String: Any] = [
+                "tracks": [
+                    [
+                        "uri": "spotify:track:\(track.id)"
+                    ]
+                ]
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: json)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let data = data, error == nil else{
+                    completion(false)
+                    return
+                }
+                do{
+                    let json = try JSONSerialization.jsonObject(with: data)
+                    print(json)
+                    if let response = json as? [String: Any], response["snapshot_id"] as? String != nil{
+                        completion(true)
+                    }
+                    else{
+                        completion(false)
+                    }
+                }
+                catch{
+                    print("Failed to serialize json data")
+                }
+            }.resume()
+        }
+    }
+    
+    public func createPlaylist(with name: String, completion: @escaping (Bool) -> Void){
+        
+        getCurrentUserProfile { [weak self] result in
+            switch result {
+            case .success(let profile):
+                let url = URL(string: Constants.baseUrl + "/users/\(profile.id)/playlists")
+                self?.createRequest(with: url, type: .POST) { baseRequest in
+                    var request = baseRequest
+                    let json = ["name": name]
+                    print(json)
+                    request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: .fragmentsAllowed)
+                    
+                    URLSession.shared.dataTask(with: request) { data, response, error in
+                        guard let data = data, error == nil else{
+                            completion(false)
+                            return
+                        }
+                        do{
+                            let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                            if let response = json as? [String: Any], response["id"] as? String != nil{
+                                completion(true)
+                            }
+                            else{
+                                completion(false)
+                            }
+                        }
+                        catch{
+                            print(error)
+                        }
+                    }.resume()
+                }
+            case .failure(let error):
+                print(error)
+            }
         }
     }
     
@@ -264,6 +437,7 @@ final class APIManager{
                 return
             }
             var request = URLRequest(url: apiUrl)
+            request.httpMethod = type.rawValue
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             

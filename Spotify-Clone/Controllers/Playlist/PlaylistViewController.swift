@@ -8,7 +8,8 @@
 import UIKit
 
 class PlaylistViewController: UIViewController {
-
+    
+    var isOwner = false
     private var playlist: Playlist
     private var tracks = [Track]()
     private var viewModels = [RecommendedTracksCellViewModel]()
@@ -67,20 +68,23 @@ class PlaylistViewController: UIViewController {
         title = playlist.name
         
         setUpCollectionView()
+        addLongPressGesture()
         
         APIManager.shared.getPlaylistDetails(for: playlist) {[weak self] result in
-            switch result {
-            case .success(let model):
-                self?.tracks = model.tracks.items.compactMap({ $0.track })
-                let recommendedTracksViewModel = model.tracks.items.compactMap {
-                    return RecommendedTracksCellViewModel(name: $0.track.name, disc_number: $0.track.disc_number, albumName: $0.track.album?.name ?? "--", artistName: $0.track.artists.first?.name ?? "--", duration_ms: $0.track.duration_ms, artworkUrl: URL(string: $0.track.album?.images.first?.url ?? ""))
+            DispatchQueue.main.async{
+                switch result {
+                case .success(let model):
+                    self?.tracks = model.tracks.items.compactMap({ $0.track })
+                    let recommendedTracksViewModel = model.tracks.items.compactMap {
+                        return RecommendedTracksCellViewModel(name: $0.track.name, disc_number: $0.track.disc_number, albumName: $0.track.album?.name ?? "--", artistName: $0.track.artists.first?.name ?? "--", duration_ms: $0.track.duration_ms, artworkUrl: URL(string: $0.track.album?.images.first?.url ?? ""))
+                    }
+                    self?.viewModels = recommendedTracksViewModel
+                    DispatchQueue.main.async {
+                        self?.collectionView.reloadData()
+                    }
+                case .failure(let error):
+                    print(error)
                 }
-                self?.viewModels = recommendedTracksViewModel
-                DispatchQueue.main.async {
-                    self?.collectionView.reloadData()
-                }
-            case .failure(let error):
-                print(error)
             }
         }
     }
@@ -104,6 +108,37 @@ class PlaylistViewController: UIViewController {
         )
         collectionView.delegate = self
         collectionView.dataSource = self
+    }
+    
+    private func addLongPressGesture(){
+        collectionView.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:))))
+    }
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer){
+        guard gesture.state == .began else{
+            return
+        }
+        
+        let point = gesture.location(in: collectionView)
+        if let indexPath = collectionView.indexPathForItem(at: point){
+            let track = tracks[indexPath.row]
+            
+            let actionSheet = UIAlertController(title: track.name, message: "Do you want to remove this track from the \(playlist.name)", preferredStyle: .actionSheet)
+            actionSheet.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { [weak self] _ in
+                guard let self = self else{return}
+                APIManager.shared.removeTrackFromPlaylist(track: track, playlist: self.playlist) { success in
+                    DispatchQueue.main.async{
+                        if success{
+                            self.tracks.remove(at: indexPath.row)
+                            self.viewModels.remove(at: indexPath.row)
+                            self.collectionView.reloadData()
+                        }
+                    }
+                }
+            }))
+            actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            present(actionSheet, animated: true)
+        }
     }
     
     @objc private func didTapShareButton(){

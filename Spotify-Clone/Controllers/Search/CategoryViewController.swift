@@ -78,6 +78,7 @@ extension CategoryViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: false)
         let playlist = playlists[indexPath.row]
         let vc = PlaylistViewController(playlist: playlist)
         vc.title = playlist.name

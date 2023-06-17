@@ -68,9 +68,9 @@ class CategoryCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with model: CategoryCollectionViewCellViewModel){
+    func configure(with model: CategoryCollectionViewCellViewModel, bgColor: UIColor){
         genreLabel.text = model.title
         genreImageView.sd_setImage(with: model.artworkUrl)
-        contentView.backgroundColor = .systemPink
+        contentView.backgroundColor = bgColor
     }
 }

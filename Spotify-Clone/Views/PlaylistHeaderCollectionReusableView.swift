@@ -123,7 +123,7 @@ class PlaylistHeaderCollectionReusableView: UICollectionReusableView {
         nameLabel.text = model.name
         ownerLabel.text = model.ownerName
         descriptionLabel.text = model.description
-        imageView.sd_setImage(with: model.artworkURL)
+        imageView.sd_setImage(with: model.artworkURL, placeholderImage: UIImage(systemName: "music.note.list"))
     }
     
     @objc private func didTapPlayAllButton(){
